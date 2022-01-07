@@ -21,9 +21,9 @@
       <!-- <custom-button @onSubmitClick="onSubmitClick" :disabled="false"
         >登録</custom-button
       > -->
-      <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="1" />
+      <!-- <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="1" />
       <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="2" />
-      <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="3" />
+      <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="3" /> -->
       {{ values }}
       <button type="submit">Submit</button>
     </Form>
@@ -53,7 +53,7 @@ export default defineComponent({
     CustomSelect,
     CustomRadio,
     CustomCheckBox,
-    CustomCheckBox2,
+    // CustomCheckBox2,
   },
   props: {},
   setup() {
@@ -115,15 +115,7 @@ export default defineComponent({
         .oneOf([Yup.ref("password")]),
       prefecture: Yup.string().required(),
       sex: Yup.string().required(),
-      // favorites: Yup.array().nullable(),
-      // favorites: Yup.object({
-      //   water: Yup.boolean().label("Water"),
-      //   coffee: Yup.boolean().label("Coffee"),
-      //   tea: Yup.boolean().label("Tea"),
-      // }),
-      favorites: Yup.boolean(),
-      // drinks: Yup.array().of(Yup.string()),
-      drinks: Yup.array(),
+      // favorites: Yup.array(),
     });
 
     const onSubmitClick = (values: string): void => {

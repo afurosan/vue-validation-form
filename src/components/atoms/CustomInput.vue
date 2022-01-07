@@ -1,17 +1,13 @@
 <template>
   <div class="TextInput">
-    <base-controls v-bind="$attrs">
+    <base-controls v-bind="$attrs" :error-msg="errorMessage">
       <template #control>
-        <!-- <input v-model="inputValue" v-bind="selectAttribute" /> -->
         <input
           :value="inputValue"
           @input="handleChange"
           @blur="handleBlur"
           v-bind="selectAttribute"
         />
-        <p class="help-message" v-show="errorMessage">
-          {{ errorMessage }}
-        </p>
         <!-- <p>{{ meta }}</p> -->
       </template>
     </base-controls>
@@ -27,8 +23,6 @@ export default defineComponent({
   name: "CustomInput",
   inheritAttrs: false,
   components: { BaseControls },
-  // props: { modelValue: String },
-  // emits: ["update:modelValue"],
   setup(p, c) {
     //  子コンポーネントへ渡すHTMLのAttributes
     const selectAttribute = computed(() => {
@@ -36,12 +30,6 @@ export default defineComponent({
       return { name, type, placeholder };
     });
 
-    // const inputValue = computed({
-    //   get: () => String(toRefs(p).modelValue.value),
-    //   set: (v: string) => {
-    //     c.emit("update:modelValue", v);
-    //   },
-    // });
     const {
       value: inputValue,
       errorMessage,
@@ -64,10 +52,4 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.help-message {
-  margin: 0;
-  font-size: 14px;
-  color: var(--error-color);
-}
-</style>
+<style scoped></style>

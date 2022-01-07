@@ -1,7 +1,7 @@
 <template>
-  <base-controls v-bind="$attrs">
+  <base-controls v-bind="$attrs" :error-msg="errorMessage">
     <template #control>
-      <div v-for="option in options" :key="option.id">
+      <div class="item" v-for="option in options" :key="option.id">
         <input
           :value="option.id"
           @change="handleChange"
@@ -9,9 +9,6 @@
         />
         {{ option.name }}
       </div>
-      <p class="help-message" v-show="errorMessage">
-        {{ errorMessage }}
-      </p>
       <!-- <p>{{ meta }}</p> -->
     </template>
   </base-controls>
@@ -27,29 +24,18 @@ export default defineComponent({
   inheritAttrs: false,
   components: { BaseControls },
   props: {
-    // selectedValue: { type: String, default: "" },
     options: { type: Array, require: true },
   },
   setup(p, c) {
     //  子コンポーネントへ渡すHTMLのAttributes
-    // const selectAttribute = "";
     const selectAttribute = computed(() => {
       let { name, type } = c.attrs;
       return { name, type };
     });
 
-    // const selectValue = computed({
-    //   get: () => String(toRefs(p).selectedValue.value),
-    //   set: (v: string) => {
-    //     console.log(v);
-    //     c.emit("update:selectedValue", v);
-    //   },
-    // });
-
     const {
       value: selectedValue,
       errorMessage,
-      handleBlur,
       handleChange,
       meta,
     } = useField(String(c.attrs.name), undefined, {
@@ -60,7 +46,6 @@ export default defineComponent({
       selectedValue,
       selectAttribute,
       errorMessage,
-      handleBlur,
       handleChange,
       meta,
     };
@@ -69,12 +54,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-div {
+div.item {
   display: inline-block;
-}
-.help-message {
-  margin: 0;
-  font-size: 14px;
-  color: var(--error-color);
 }
 </style>

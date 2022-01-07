@@ -1,8 +1,7 @@
 <template>
   <div>
-    <base-controls v-bind="$attrs">
+    <base-controls v-bind="$attrs" :error-msg="errorMessage">
       <template #control>
-        <!-- <select v-model="selectValue"> -->
         <select :value="selectedValue" @change="handleChange">
           <option
             v-for="option in options"
@@ -13,9 +12,6 @@
             {{ option.name }}
           </option>
         </select>
-        <p class="help-message" v-show="errorMessage">
-          {{ errorMessage }}
-        </p>
         <!-- <p>{{ meta }}</p> -->
       </template>
     </base-controls>
@@ -32,17 +28,9 @@ export default defineComponent({
   inheritAttrs: false,
   components: { BaseControls },
   props: {
-    // selectedValue: { type: String, default: "" },
     options: { type: Array, require: true },
   },
   setup(p, c) {
-    // const selectValue = computed({
-    //   get: () => String(toRefs(p).selectedValue.value),
-    //   set: (v: string) => {
-    //     c.emit("update:selectedValue", v);
-    //   },
-    // });
-
     const {
       value: selectedValue,
       errorMessage,
@@ -58,10 +46,4 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.help-message {
-  margin: 0;
-  font-size: 14px;
-  color: var(--error-color);
-}
-</style>
+<style scoped></style>

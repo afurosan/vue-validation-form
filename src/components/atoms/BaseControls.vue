@@ -1,7 +1,8 @@
 <template>
   <div>
     <label>{{ $attrs.label }}</label>
-    <slot name="control"></slot>
+    <slot name="control" />
+    <p class="error-message">{{ errorMsg }}</p>
   </div>
 </template>
 
@@ -11,7 +12,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "BaseControls",
   inheritAttrs: false,
-  props: { modelValue: String },
+  props: { modelValue: String, errorMsg: String },
   setup() {
     return {};
   },
@@ -19,7 +20,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.help-message {
+.error-message {
   margin: 0;
   font-size: 14px;
   color: var(--error-color);

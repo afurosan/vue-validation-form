@@ -7,18 +7,12 @@
           :type="selectAttribute.type"
           :value="true"
         />
-        <!-- <input
-            :value="option.id"
-            v-bind="selectAttribute"
-            @change="handleChange"
-          /> -->
-        <!-- </Field> -->
         {{ option.name }}
       </div>
       <!-- <p class="help-message" v-show="errorMessage">
         {{ errorMessage }}
-      </p>
-      <p>{{ meta }}</p> -->
+      </p> -->
+      <!-- <p>{{ meta }}</p> -->
     </template>
   </base-controls>
 </template>
@@ -52,10 +46,5 @@ export default defineComponent({
 <style scoped>
 div.item {
   display: inline-block;
-}
-.help-message {
-  margin: 0;
-  font-size: 14px;
-  color: var(--error-color);
 }
 </style>
