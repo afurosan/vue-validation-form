@@ -1,38 +1,41 @@
 <template>
-  <div>
-    <Form
+  <form @submit="onSubmitClick">
+    <!-- <Form
       @submit="onSubmitClick"
       :validation-schema="schema"
       v-slot="{ values }"
-    >
-      <custom-input v-bind="ccArray.name.attributes" />
-      <custom-input v-bind="ccArray.mail.attributes" />
-      <custom-input v-bind="ccArray.password.attributes" />
-      <custom-input v-bind="ccArray.confirm_password.attributes" />
-      <custom-select
-        :options="prefecture"
-        v-bind="ccArray.prefecture.attributes"
-      />
-      <custom-radio :options="sex" v-bind="ccArray.sex.attributes" />
-      <custom-check-box
-        :options="favorites"
-        v-bind="ccArray.favorites.attributes"
-      />
-      <!-- <custom-button @onSubmitClick="onSubmitClick" :disabled="false"
+    > -->
+    <custom-input v-bind="ccArray.name.attributes" />
+    <custom-input v-bind="ccArray.mail.attributes" />
+    <custom-input v-bind="ccArray.password.attributes" />
+    <custom-input v-bind="ccArray.confirm_password.attributes" />
+    <custom-select
+      :options="prefecture"
+      v-bind="ccArray.prefecture.attributes"
+    />
+    <custom-radio :options="sex" v-bind="ccArray.sex.attributes" />
+    <custom-check-box
+      :options="favorites"
+      v-bind="ccArray.favorites.attributes"
+    />
+    <!-- <custom-button @onSubmitClick="onSubmitClick" :disabled="false"
         >登録</custom-button
       > -->
-      <!-- <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="1" />
+    <!-- <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="1" />
       <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="2" />
       <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="3" /> -->
-      {{ values }}
-      <button type="submit">Submit</button>
-    </Form>
-  </div>
+    <custom-button type="submit" :disabled="!meta.valid"
+      >送信する</custom-button
+    >
+    <p>{{ values }}</p>
+    <p>{{ meta }}</p>
+    <!-- </Form> -->
+  </form>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { Form, useField } from "vee-validate";
+import { Form, useForm, useField } from "vee-validate";
 import * as Yup from "yup";
 
 import { CustomControl } from "@/components/classes/CustomControl";
@@ -47,9 +50,9 @@ import CustomCheckBox2 from "../atoms/CustomCheckBox2.vue";
 export default defineComponent({
   name: "FormValidate",
   components: {
-    Form,
+    // Form,
     CustomInput,
-    // CustomButton,
+    CustomButton,
     CustomSelect,
     CustomRadio,
     CustomCheckBox,
@@ -87,8 +90,14 @@ export default defineComponent({
       "パスワードを入力します",
       "aaaaaa"
     );
-    const cPrefecture = new CustomControl("prefecture", "", "都道府県", "");
-    const cSex = new CustomControl("sex", "radio", "性別", "");
+    const cPrefecture = new CustomControl(
+      "prefecture",
+      "",
+      "都道府県",
+      "",
+      "2"
+    );
+    const cSex = new CustomControl("sex", "radio", "性別", "", "");
     const cFavorites = new CustomControl("favorites", "checkbox", "趣味", "");
 
     const cDrinks = new CustomControl("drinks", "checkbox", "飲み物");
@@ -103,10 +112,19 @@ export default defineComponent({
     ccArray[cFavorites.name] = cFavorites;
     ccArray[cDrinks.name] = cDrinks;
 
-    //const cSex = new CustomControl("sex", "", "性別", "");
-    //const cPrefecture = new CustomControl("prefecture", "", "県", "");
+    // const schema = Yup.object().shape({
+    //   name: Yup.string().required(),
+    //   mail: Yup.string().email().required(),
+    //   password: Yup.string().min(6).required(),
+    //   confirm_password: Yup.string()
+    //     .required()
+    //     .oneOf([Yup.ref("password")]),
+    //   prefecture: Yup.string().required(),
+    //   sex: Yup.string().required(),
+    //   // favorites: Yup.array(),
+    // });
 
-    const schema = Yup.object().shape({
+    const schema = Yup.object({
       name: Yup.string().required(),
       mail: Yup.string().email().required(),
       password: Yup.string().min(6).required(),
@@ -118,10 +136,20 @@ export default defineComponent({
       // favorites: Yup.array(),
     });
 
-    const onSubmitClick = (values: string): void => {
-      console.log(JSON.stringify(values));
-      //console.log(values);
-    };
+    const { values, meta, handleSubmit } = useForm({
+      validationSchema: schema,
+      // initialValues: initialValues,
+    });
+
+    // const onSubmitClick = (values: string): void => {
+    //   console.log(JSON.stringify(values));
+    //   //console.log(values);
+    // };
+    const onSubmitClick = handleSubmit((v, { resetForm }) => {
+      console.log(v);
+
+      // resetForm();
+    });
 
     interface KeyValue {
       id: string;
@@ -157,6 +185,8 @@ export default defineComponent({
       // water,
       // coffee,
       // tea,
+      values,
+      meta,
     };
   },
 });

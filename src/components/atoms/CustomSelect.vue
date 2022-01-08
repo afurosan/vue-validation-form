@@ -38,7 +38,7 @@ export default defineComponent({
       handleChange,
       meta,
     } = useField(String(c.attrs.name), undefined, {
-      initialValue: "",
+      initialValue: c.attrs.initialValue,
     });
 
     return { selectedValue, errorMessage, handleBlur, handleChange, meta };

@@ -34,12 +34,12 @@ export default defineComponent({
     });
 
     const {
-      value: selectedValue,
+      value: selectedValue = c.attrs.initialValue,
       errorMessage,
       handleChange,
       meta,
     } = useField(String(c.attrs.name), undefined, {
-      initialValue: "",
+      initialValue: c.attrs.initialValue,
     });
 
     return {

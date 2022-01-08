@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <label>{{ $attrs.label }}</label>
+  <div class="base_item">
+    <label class="item-title">{{ $attrs.label }}</label>
     <slot name="control" />
     <p class="error-message">{{ errorMsg }}</p>
   </div>
@@ -20,6 +20,13 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.base_item {
+  padding: 3px;
+}
+.item-title {
+  background-color: burlywood;
+  margin-right: 2px;
+}
 .error-message {
   margin: 0;
   font-size: 14px;
