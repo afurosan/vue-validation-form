@@ -1,12 +1,30 @@
 type inputType = "" | "text" | "password" | "email" | "radio" | "checkbox";
 
-interface ControlAttribute {
+export interface ControlAttribute {
   name?: string;
   type?: inputType;
   label?: string;
   placeholder?: string;
   initialValue?: string;
 }
+
+// export class CustomControls {
+//   // private _controls: Array<CustomControl>;
+//   private _controls: { [key: string]: CustomControl };
+
+//   constructor() {
+//     this._controls = {};
+//   }
+
+//   push(key: string, ctrl: CustomControl): void {
+//     this._controls[key] = ctrl;
+//     // this._controls.push(ctrl);
+//   }
+
+//   getControl(key: string): CustomControl {
+//     return this._controls[key];
+//   }
+// }
 
 export class CustomControl {
   private _attributes: ControlAttribute;
@@ -16,19 +34,13 @@ export class CustomControl {
   private _placeholder: string;
   private _initialValue: string;
 
-  constructor(
-    name = "",
-    type: inputType = "",
-    label = "",
-    placeholder = "",
-    initialValue = ""
-  ) {
+  constructor(ca: ControlAttribute) {
     this._attributes = {};
-    this._name = name;
-    this._type = type;
-    this._label = label;
-    this._placeholder = placeholder;
-    this._initialValue = initialValue;
+    this._name = ca.name || "";
+    this._type = ca.type || "";
+    this._label = ca.label || "";
+    this._placeholder = ca.placeholder || "";
+    this._initialValue = ca.initialValue || "";
   }
 
   get name(): string {

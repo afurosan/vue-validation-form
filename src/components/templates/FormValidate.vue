@@ -18,12 +18,27 @@
       :options="favorites"
       v-bind="ccArray.favorites.attributes"
     />
-    <!-- <custom-button @onSubmitClick="onSubmitClick" :disabled="false"
-        >登録</custom-button
-      > -->
-    <!-- <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="1" />
-      <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="2" />
-      <custom-check-box-2 v-bind="ccArray.drinks.attributes" value="3" /> -->
+    <fieldset
+      class="InputGroup"
+      v-for="(field, idx) in fields"
+      :key="field.key"
+    >
+      <legend>User #{{ idx }}</legend>
+      <label :for="`name_${idx}`">Name</label>
+      <Field :id="`name_${idx}`" :name="`users[${idx}].username`" />
+      <p><ErrorMessage :name="`users[${idx}].username`" /></p>
+      <label :for="`email_${idx}`">Email</label>
+      <Field
+        :id="`email_${idx}`"
+        :name="`users[${idx}].useremail`"
+        type="email"
+      />
+      <p><ErrorMessage :name="`users[${idx}].useremail`" /></p>
+      <button type="button" @click="remove(idx)">x</button>
+    </fieldset>
+    <button type="button" @click="push({ useremail: '', username: '' })">
+      Add User +</button
+    ><br /><br />
     <custom-button type="submit" :disabled="!meta.valid"
       >送信する</custom-button
     >
@@ -35,16 +50,25 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { Form, useForm, useField } from "vee-validate";
+import {
+  // Form,
+  useForm,
+  // useField,
+  useFieldArray,
+  ErrorMessage,
+  Field,
+} from "vee-validate";
 import * as Yup from "yup";
 
-import { CustomControl } from "@/components/classes/CustomControl";
+import {
+  CustomControl,
+  ControlAttribute,
+} from "@/components/classes/CustomControl";
 import CustomInput from "@/components/atoms/CustomInput.vue";
 import CustomSelect from "@/components/atoms/CustomSelect.vue";
 import CustomRadio from "@/components/atoms/CustomRadio.vue";
 import CustomCheckBox from "@/components/atoms/CustomCheckBox.vue";
 import CustomButton from "@/components/atoms/CustomButton.vue";
-import CustomCheckBox2 from "../atoms/CustomCheckBox2.vue";
 //import { Member } from "@/Member";
 
 export default defineComponent({
@@ -56,51 +80,70 @@ export default defineComponent({
     CustomSelect,
     CustomRadio,
     CustomCheckBox,
-    // CustomCheckBox2,
+    ErrorMessage,
+    Field,
   },
   props: {},
   setup() {
     // const member = ref(new Member());
+    let ca: ControlAttribute = {
+      name: "name",
+      type: "text",
+      label: "名前",
+      placeholder: "名前を入力します",
+      initialValue: "あ",
+    };
+    const cName = new CustomControl(ca);
 
-    const cName = new CustomControl(
-      "name",
-      "text",
-      "名前",
-      "名前を入力します",
-      "あ"
-    );
-    const cMail = new CustomControl(
-      "mail",
-      "email",
-      "メールアドレス",
-      "メールアドレスを入力します",
-      "a@a.co.jp"
-    );
-    const cPassword = new CustomControl(
-      "password",
-      "password",
-      "パスワード",
-      "パスワードを入力します",
-      "aaaaaa"
-    );
-    const cConfirmPassword = new CustomControl(
-      "confirm_password",
-      "password",
-      "パスワード",
-      "パスワードを入力します",
-      "aaaaaa"
-    );
-    const cPrefecture = new CustomControl(
-      "prefecture",
-      "",
-      "都道府県",
-      "",
-      "2"
-    );
-    const cSex = new CustomControl("sex", "radio", "性別", "", "");
-    const cFavorites = new CustomControl("favorites", "checkbox", "趣味", "");
+    ca = {
+      name: "mail",
+      type: "email",
+      label: "メールアドレス",
+      placeholder: "メールアドレスを入力します",
+      initialValue: "a@a.co.jp",
+    };
+    const cMail = new CustomControl(ca);
 
-    const cDrinks = new CustomControl("drinks", "checkbox", "飲み物");
+    ca = {
+      name: "password",
+      type: "password",
+      label: "パスワード",
+      placeholder: "パスワードを入力します",
+      initialValue: "aaaaaa",
+    };
+    const cPassword = new CustomControl(ca);
+
+    ca = {
+      name: "confirm_password",
+      type: "password",
+      label: "パスワード",
+      placeholder: "パスワードを入力します",
+      initialValue: "aaaaaa",
+    };
+    const cConfirmPassword = new CustomControl(ca);
+
+    ca = {
+      name: "prefecture",
+      label: "都道府県",
+      initialValue: "2",
+    };
+    const cPrefecture = new CustomControl(ca);
+
+    ca = {
+      name: "sex",
+      type: "radio",
+      label: "性別",
+      initialValue: "",
+    };
+    const cSex = new CustomControl(ca);
+
+    ca = {
+      name: "favorites",
+      type: "checkbox",
+      label: "趣味",
+      initialValue: "",
+    };
+    const cFavorites = new CustomControl(ca);
 
     const ccArray: { [key: string]: CustomControl } = {};
     ccArray[cName.name] = cName;
@@ -110,19 +153,6 @@ export default defineComponent({
     ccArray[cPrefecture.name] = cPrefecture;
     ccArray[cSex.name] = cSex;
     ccArray[cFavorites.name] = cFavorites;
-    ccArray[cDrinks.name] = cDrinks;
-
-    // const schema = Yup.object().shape({
-    //   name: Yup.string().required(),
-    //   mail: Yup.string().email().required(),
-    //   password: Yup.string().min(6).required(),
-    //   confirm_password: Yup.string()
-    //     .required()
-    //     .oneOf([Yup.ref("password")]),
-    //   prefecture: Yup.string().required(),
-    //   sex: Yup.string().required(),
-    //   // favorites: Yup.array(),
-    // });
 
     const schema = Yup.object({
       name: Yup.string().required(),
@@ -134,20 +164,28 @@ export default defineComponent({
       prefecture: Yup.string().required(),
       sex: Yup.string().required(),
       // favorites: Yup.array(),
+      users: Yup.array().of(
+        Yup.object({
+          username: Yup.string().required().label("name"),
+          useremail: Yup.string().email().required().label("email"),
+        })
+      ),
     });
+
+    // //  初期値の設定
+    // const initialValues = {
+    //   users: [{ username: "", useremail: "" }],
+    // };
 
     const { values, meta, handleSubmit } = useForm({
       validationSchema: schema,
       // initialValues: initialValues,
     });
 
-    // const onSubmitClick = (values: string): void => {
-    //   console.log(JSON.stringify(values));
-    //   //console.log(values);
-    // };
+    const { fields, push, remove } = useFieldArray("users");
+
     const onSubmitClick = handleSubmit((v, { resetForm }) => {
       console.log(v);
-
       // resetForm();
     });
 
@@ -182,15 +220,27 @@ export default defineComponent({
       favorites,
       onSubmitClick,
       schema,
-      // water,
-      // coffee,
-      // tea,
       values,
       meta,
+      fields,
+      push,
+      remove,
     };
   },
 });
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped></style>
+<style scoped>
+.InputGroup {
+  padding: 10px;
+  border: 2px dotted black;
+  margin-bottom: 30px;
+  position: relative;
+}
+.InputGroup button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+</style>
