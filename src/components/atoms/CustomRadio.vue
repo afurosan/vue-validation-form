@@ -2,12 +2,14 @@
   <base-controls v-bind="$attrs" :error-msg="errorMessage">
     <template #control>
       <div class="item" v-for="option in options" :key="option.id">
-        <input
-          :value="option.id"
-          @change="handleChange"
-          v-bind="selectAttribute"
-        />
-        {{ option.name }}
+        <label>          
+          <input
+            type="radio"
+            :name="`${selectAttribute.name}.${option.id}`"
+            :value="option.id"
+            v-model="selectedValue"/>
+          {{ option.name }}
+        </label>
       </div>
       <!-- <p>{{ meta }}</p> -->
     </template>
@@ -23,18 +25,21 @@ export default defineComponent({
   name: "CustomRadio",
   inheritAttrs: false,
   components: { BaseControls },
-  props: {
+  props: {    
     options: { type: Array, require: true },
   },
   setup(p, c) {
+
     //  子コンポーネントへ渡すHTMLのAttributes
     const selectAttribute = computed(() => {
       let { name, type } = c.attrs;
       return { name, type };
     });
 
+    console.log('ini', c.attrs.initialValue)
+
     const {
-      value: selectedValue = c.attrs.initialValue,
+      value: selectedValue,
       errorMessage,
       handleChange,
       meta,

@@ -4,6 +4,8 @@
       @submit="onSubmitClick"
       :validation-schema="schema"
       v-slot="{ values }"
+      v-model="values.favorites"
+       v-model="values.sex"
     > -->
     <custom-input v-bind="ccArray.name.attributes" />
     <custom-input v-bind="ccArray.mail.attributes" />
@@ -13,11 +15,22 @@
       :options="prefecture"
       v-bind="ccArray.prefecture.attributes"
     />
-    <custom-radio :options="sex" v-bind="ccArray.sex.attributes" />
-    <custom-check-box
+    <!-- v-model="values.sex" を追加> -->
+    <custom-radio :options="sex" v-bind="ccArray.sex.attributes" v-model="values.sex"/>
+
+<!--    <custom-check-box
       :options="favorites"
       v-bind="ccArray.favorites.attributes"
+      v-model="values.favorites"
+    />-->
+
+    <!-- v-model="values.favorites" を追加 , boxesに変更> -->
+    <custom-check-box
+        :options="favorites"
+        v-bind="ccArray.favorites.attributes"
+        v-model="values.favorites"
     />
+
     <fieldset
       class="InputGroup"
       v-for="(field, idx) in fields"
@@ -39,6 +52,7 @@
     <button type="button" @click="push({ useremail: '', username: '' })">
       Add User +</button
     ><br /><br />
+
     <custom-button type="submit" :disabled="!meta.valid"
       >送信する</custom-button
     >
@@ -49,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import {defineComponent, ref, vModelCheckbox} from "vue";
 import {
   // Form,
   useForm,
@@ -69,17 +83,23 @@ import CustomSelect from "@/components/atoms/CustomSelect.vue";
 import CustomRadio from "@/components/atoms/CustomRadio.vue";
 import CustomCheckBox from "@/components/atoms/CustomCheckBox.vue";
 import CustomButton from "@/components/atoms/CustomButton.vue";
+//import CustomCheckBoxAdd from "@/components/atoms/CustomCheckBoxAdd.vue";
+//import {boolean} from "yup";
+//import CustomCheckBoxes from "@/components/atoms/CustomCheckBoxesAdd.vue";
 //import { Member } from "@/Member";
 
 export default defineComponent({
   name: "FormValidate",
   components: {
+    //CustomCheckBoxes,
     // Form,
     CustomInput,
     CustomButton,
     CustomSelect,
     CustomRadio,
     CustomCheckBox,
+    //CustomCheckBoxAdd,
+    //CustomCheckBoxes,
     ErrorMessage,
     Field,
   },
@@ -91,7 +111,7 @@ export default defineComponent({
       type: "text",
       label: "名前",
       placeholder: "名前を入力します",
-      initialValue: "あ",
+      initialValue: "あいう",
     };
     const cName = new CustomControl(ca);
 
@@ -99,8 +119,8 @@ export default defineComponent({
       name: "mail",
       type: "email",
       label: "メールアドレス",
-      placeholder: "メールアドレスを入力します",
-      initialValue: "a@a.co.jp",
+      placeholder: "メールアドレスを入力して下さい",
+      initialValue: "abc@a.co.jp",
     };
     const cMail = new CustomControl(ca);
 
@@ -125,7 +145,7 @@ export default defineComponent({
     ca = {
       name: "prefecture",
       label: "都道府県",
-      initialValue: "2",
+      initialValue: "1",
     };
     const cPrefecture = new CustomControl(ca);
 
@@ -133,7 +153,7 @@ export default defineComponent({
       name: "sex",
       type: "radio",
       label: "性別",
-      initialValue: "",
+      initialValue:"1",
     };
     const cSex = new CustomControl(ca);
 
@@ -141,7 +161,7 @@ export default defineComponent({
       name: "favorites",
       type: "checkbox",
       label: "趣味",
-      initialValue: "",
+      initialValues: ['a','b','c'],
     };
     const cFavorites = new CustomControl(ca);
 
@@ -163,7 +183,7 @@ export default defineComponent({
         .oneOf([Yup.ref("password")]),
       prefecture: Yup.string().required(),
       sex: Yup.string().required(),
-      // favorites: Yup.array(),
+      favorites: Yup.array().min(1).required(),
       users: Yup.array().of(
         Yup.object({
           username: Yup.string().required().label("name"),
@@ -171,7 +191,6 @@ export default defineComponent({
         })
       ),
     });
-
     // //  初期値の設定
     // const initialValues = {
     //   users: [{ username: "", useremail: "" }],
@@ -194,6 +213,12 @@ export default defineComponent({
       name: string;
     }
 
+    /*interface KeyValue2 {  初回ボツ案
+      id: string;
+      name: string;
+      option: boolean;
+    }
+*/
     const prefecture: Array<KeyValue> = [
       { id: "", name: "都道府県を選択" },
       { id: "1", name: "北海道" },
@@ -202,10 +227,16 @@ export default defineComponent({
     ];
 
     const sex: Array<KeyValue> = [
-      { id: "1", name: "女性" },
-      { id: "2", name: "男性" },
-      { id: "3", name: "LGBT" },
+      { id: "1", name: "女性"},
+      { id: "2", name: "男性"},
+      { id: "3", name: "LGBT"},
     ];
+
+    /*const sex: Array<KeyValue2> = [ 初回ボツ案
+      { id: "1", name: "女性", option:true },
+      { id: "2", name: "男性", option:false},
+      { id: "3", name: "LGBT", option:false},
+    ];*/
 
     const favorites: Array<KeyValue> = [
       { id: "a", name: "テニス" },
