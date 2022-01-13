@@ -11,6 +11,7 @@
     <custom-input v-bind="ccArray.confirm_password.attributes" />
     <custom-select
       :options="prefecture"
+
       v-bind="ccArray.prefecture.attributes"
     />
     <custom-radio :options="sex" v-bind="ccArray.sex.attributes" />
