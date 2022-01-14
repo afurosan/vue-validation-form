@@ -11,6 +11,8 @@
       top-msg="画像をプレビュー（ローカルドライブにあるファイル）"
       alt-msg="画像は表示できません"
   />
+  <hr>
+  <form-linq-sample></form-linq-sample>
 
 </template>
 
@@ -19,6 +21,7 @@ import { defineComponent } from "vue";
 import FormValidate from "@/components/templates/FormValidate.vue";
 import FormTest from "@/components/templates/FormTest.vue";
 import FormLocalImage from "@/components/templates/FormLocalImage.vue";
+import FormLinqSample from "@/components/templates/FormLinqSample.vue";
 
 export default defineComponent({
   name: "App",
@@ -26,6 +29,7 @@ export default defineComponent({
     FormValidate,
     // FormTest,
     FormLocalImage,
+    FormLinqSample,
   },
 });
 </script>

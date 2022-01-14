@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "linq-es2015": "^2.5.1",
     "vee-validate": "^4.5.7",
     "vue": "^3.0.0",
     "yup": "^0.32.11"
