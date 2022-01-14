@@ -16,10 +16,10 @@
   </div>  
 </template>
 
-<script>
-import { ref } from 'vue';
+<script lang="ts">
+import { defineComponent, ref } from 'vue';
 import CustomImgPreview from '@/components/atoms/CustomImgPreview.vue';
-export default {
+export default defineComponent ({
   name: "FormLocalImage",
   inheritAttrs: false,
   components: {
@@ -34,8 +34,8 @@ export default {
     
     //ファイル選択ボタンのrefを取る
     //Composition APIでは$refsで取得しない？
-    const refSelectFile = ref(null);             // 今までの書き方
-    //const refSelectFile = ref<HTMLInputElement>(); // TSで型を指定するならこれかな？
+    // const refSelectFile = ref(null);             // 今までの書き方
+    const refSelectFile = ref<HTMLInputElement>(); // TSで型を指定するならこれかな？
     
     // 画像のURL（ブラウザ内の一時的なもの)
     const urlInBrows = ref(""); 
@@ -44,10 +44,12 @@ export default {
     const uploadToBrows = () => {
 
         //先頭ファイル情報を取り出す
-        const file = refSelectFile.value.files[0];
-
-        //ファイル情報から一時的なブラウザ内のURLへ変換
-        urlInBrows.value = URL.createObjectURL(file);
+        // const file = refSelectFile.value.files[0];
+        const files = refSelectFile.value?.files;
+        if (files) {
+          //ファイル情報から一時的なブラウザ内のURLへ変換
+          urlInBrows.value = URL.createObjectURL(files[0]);
+        }
        
         //console.log(urlInBrows);
     };
@@ -61,7 +63,10 @@ export default {
         URL.revokeObjectURL('');
 
         // 閉じるで非表示にした後、同じ画像を選択されても表示できない対処。
-        refSelectFile.value.value = "";
+        if (refSelectFile.value instanceof HTMLInputElement && refSelectFile.value.files) {
+          refSelectFile.value.value = "";
+        }
+        
 
         console.log("hideImage FormLocalImage");
 
@@ -77,7 +82,7 @@ export default {
       hideImage,
     }
   },
-}
+})
 </script>
 
 <style scoped>
