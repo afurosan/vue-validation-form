@@ -58,7 +58,7 @@ export default defineComponent({
 
 
     //背景の色
-    const backColor = ref("#E0E0E0");
+    const backColor = ref<string>("#E0E0E0");
 //  const backColor = ref("#7b2d43");
 
 
@@ -114,7 +114,7 @@ export default defineComponent({
 }
 
 .BoxImage {
-  width: v-bind("zoom");  /* styleタグ内でv-bindパターン２ */
+  width: v-bind(zoom);  /* styleタグ内でv-bindパターン２ */
   border: 6px solid #FF0000;
 /*  width: v-bind('zoom==="50%" ? "50%" : "20%"'); */
 /*  width: v-bind('zoom==="50%" ? "50%" : (zoom==="200%" ? "200%" : "100%")'); */
