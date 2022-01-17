@@ -16,7 +16,7 @@
       v-bind="ccArray.prefecture.attributes"
     />
     <!-- v-model="values.sex" を追加> -->
-    <custom-radio :options="sex" v-bind="ccArray.sex.attributes" v-model="values.sex"/>
+    <custom-radio :options="sex" v-bind="ccArray.sex.attributes" />
 
 <!--    <custom-check-box
       :options="favorites"
@@ -24,7 +24,7 @@
       v-model="values.favorites"
     />-->
 
-    <!-- v-model="values.favorites" を追加 , boxesに変更> -->
+    <!-- v-model="values.favorites" を追加 > -->
     <custom-check-box
         :options="favorites"
         v-bind="ccArray.favorites.attributes"
@@ -53,6 +53,19 @@
       Add User +</button
     ><br /><br />
 
+    <div>
+      <p>コンポーネント間のデータの受け渡し</p>
+      <input v-model="userItems.item_name" title="名前" style="margin-right: 5px"/>
+      <input v-model="userItems.item_email" title="メール" style="margin-right: 5px"/>
+      <button @click="adduser">ユーザー追加</button>
+      <hr />
+
+      <FormDetails
+          :user-items="userItems"
+      ></FormDetails>
+
+    </div>
+
     <custom-button type="submit" :disabled="!meta.valid"
       >送信する</custom-button
     >
@@ -60,10 +73,46 @@
     <p>{{ meta }}</p>
     <!-- </Form> -->
   </form>
+
+  <CustomMultiInput v-model:name="name" v-model:email="email" v-model:tel="tel"/>
+
+  <div>
+    <h4>明細追加テスト</h4>
+    <hr />
+    <div>
+      <p>明細にデータを追加します。</p>
+
+      <table border="2">
+        <thead>
+        <tr>
+          <th v-for="(header, index) in details.header" :key="index">
+            {{ header }}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(item, index) in details.items" :key="index">
+          <td v-for="(value, index) in item" :key="index">{{ value }}</td>
+          <td><button @click="removeItem(index)">削除</button></td>
+        </tr>
+        </tbody>
+      </table>
+      <button @click="addItem" style="margin: 10px">明細追加</button>
+
+    </div>
+  </div>
+
+
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, vModelCheckbox} from "vue";
+
+// vue2での参照方法
+//import { reactive } from "@vue/composition-api";
+// vue3での参照方法
+//import { reactive } from "vue"
+
+import {defineComponent, ref,reactive,  vModelCheckbox} from "vue";
 import {
   // Form,
   useForm,
@@ -88,6 +137,9 @@ import CustomButton from "@/components/atoms/CustomButton.vue";
 //import CustomCheckBoxes from "@/components/atoms/CustomCheckBoxesAdd.vue";
 //import { Member } from "@/Member";
 
+import CustomMultiInput from "@/components/atoms/CustomMultiInput.vue"
+import FormDetails from "@/components/templates/FormDetails.vue";
+
 export default defineComponent({
   name: "FormValidate",
   components: {
@@ -98,10 +150,10 @@ export default defineComponent({
     CustomSelect,
     CustomRadio,
     CustomCheckBox,
-    //CustomCheckBoxAdd,
-    //CustomCheckBoxes,
+    CustomMultiInput,
     ErrorMessage,
     Field,
+    FormDetails,
   },
   props: {},
   setup() {
@@ -153,7 +205,7 @@ export default defineComponent({
       name: "sex",
       type: "radio",
       label: "性別",
-      initialValue:"1",
+      initialValue:"2",
     };
     const cSex = new CustomControl(ca);
 
@@ -161,7 +213,7 @@ export default defineComponent({
       name: "favorites",
       type: "checkbox",
       label: "趣味",
-      initialValues: ['a','b','c'],
+      initialValues: ['c'],
     };
     const cFavorites = new CustomControl(ca);
 
@@ -191,6 +243,11 @@ export default defineComponent({
         })
       ),
     });
+
+    const schema2 = Yup.object().shape({
+      item_name: Yup.string().required(),
+      item_mail: Yup.string().required(),
+    })
     // //  初期値の設定
     // const initialValues = {
     //   users: [{ username: "", useremail: "" }],
@@ -207,6 +264,70 @@ export default defineComponent({
       console.log(v);
       // resetForm();
     });
+
+   // vue2共通
+   // 明細にデータを追加したい
+    const details = reactive({
+      header: ["ID", "商品名", "枝番名", "価格", ""],
+      items: [
+        { id: 1, name: "ダニエルウェリントン", branch_name: "34mm シルバー", price: 15000 },
+        { id: 2, name: "フォッシル", branch_name: "40mm ブラック", price: 10000 },
+        { id: 3, name: "スカーゲン", branch_name: "40mm ブラック", price: 18000 },
+      ],
+    });
+
+    // vue2共通
+    const addItem = () => {
+      details.items.push({
+        id: 4,
+        name: "ポールスミス",
+        branch_name: "42mm シルバー",
+        price: 23000,
+      });
+    };
+
+    // {index:number}をつけないと、TS7031：暗黙anyエラー
+    const removeItem = (index: {index:number}) => {
+          details.items.splice(1, 1);};
+
+    const name = ref('鈴木　三郎')
+    const email = ref('suzuki3@abc.co.jp')
+    const tel = ref('090-3333-3333')
+
+    const userItems = reactive({
+      header: ["ID", "名前", "メール", ""],
+      item_name: "",
+      item_email: "",
+      user: [
+        { name: "鈴木　一郎", email: "suzuki@abc.co.jp"},
+        { name: "佐藤　二郎", email: "satou@abc.co.jp"},
+      ],
+    });
+
+    const adduser = () => {
+      //連想配列の追加
+      schema2.validate(userItems).then( v => {
+        console.log('then',v);
+        let item = { name: userItems.item_name, email: userItems.item_email };
+        userItems.user.push(item);
+        userItems.item_name = "";
+        userItems.item_email = "";
+      })
+      .catch(error =>{
+        console.log('catch',"");
+
+      });
+
+       // let item = { name: userItems.item_name, email: userItems.item_email };
+       // userItems.user.push(item);
+       // userItems.item_name = "";
+       // userItems.item_email = "";
+    };
+
+
+    // vue2形式
+    //const removeItem = (index) => {
+    //      details.items.splice(index, 1);
 
     interface KeyValue {
       id: string;
@@ -256,6 +377,15 @@ export default defineComponent({
       fields,
       push,
       remove,
+      details,
+      addItem,
+      removeItem,
+      name,
+      email,
+      tel,
+      userItems,
+      adduser,
+      schema2,
     };
   },
 });
