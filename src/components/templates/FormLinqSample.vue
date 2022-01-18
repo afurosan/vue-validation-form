@@ -2,7 +2,9 @@
   <div class="sample">
     <h3>{{ age }}</h3>
     <h3>{{ saySomething("テスト") }}</h3>
-    <button @click="calcM">リンク計算</button>
+    <button @click="calcM" style="margin: 5px">リンク計算</button>
+    <button @click="callbackChk">コールバック関数チェック</button>
+
     <!-- <p>{{ saySomething() }}</p> -->
   </div>
 </template>
@@ -90,7 +92,19 @@ export default defineComponent({
 
     //何も戻り値がない場合はvoidを指定する
     const sayHello = (msg : string) : void =>{
-      console .log(msg);
+      console.log(msg);
+    }
+
+    //callback関数の型の書き方
+    const doubledHandle = (num : number, cb : (num : number) => number) : void => {
+      const doubleNum = cb(num * 2);
+      console.log(doubleNum);
+    }
+
+    const callbackChk = () : void => {
+      doubledHandle(100, doubleNum => {
+        return doubleNum;
+      })
     }
 
     const orders =
@@ -149,6 +163,7 @@ export default defineComponent({
       age,
       calcM,
       saySomething,
+      callbackChk,
     };
   },
 });
