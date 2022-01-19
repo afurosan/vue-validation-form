@@ -8,7 +8,6 @@
           </th>
           <li v-for="(user, index) in userItems.user" :key="index">
             {{ user.name }} {{ user.email }}
-            <!-- <button @click="addToCart(user)" style="margin: 5px">追加</button> -->
             <button @click="removeItem(index)">削除</button>
           </li>
       </ol>
@@ -16,30 +15,24 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
 import { computed } from "vue";
-
+import { reactive } from 'vue'
 export default {
-  //inject: ['$validator'],
   name: "FormDetails",
   props: {
-
     userItems: {
       type: Object,
-
     },
-
     value: {
       type: Number,
     },
 
   },
 
-  setup(props, context) {
-    // eslint-disable-next-line vue/no-setup-props-destructure
-    const fs = props.userItems;
-    const removeItem = (i) => fs.user.splice(i, 1);
+  setup(props:any) {
+    const fs = reactive(props.userItems);
+    const removeItem = (i:number) => {fs.user.splice(i,  1)};
 
     return {
       removeItem,

@@ -18,12 +18,6 @@
     <!-- v-model="values.sex" を追加> -->
     <custom-radio :options="sex" v-bind="ccArray.sex.attributes" />
 
-<!--    <custom-check-box
-      :options="favorites"
-      v-bind="ccArray.favorites.attributes"
-      v-model="values.favorites"
-    />-->
-
     <!-- v-model="values.favorites" を追加 > -->
     <custom-check-box
         :options="favorites"
@@ -57,12 +51,12 @@
       <p>コンポーネント間のデータの受け渡し</p>
       <span>名前</span>
       <br>
-      <input v-model="userItems.item_name" title="名前" style="margin-right: 5px"/>
+      <input v-model="userItems.item_name" style="margin-right: 5px"/>
       <br>
       <span>メール</span>
       <br>
-      <input v-model="userItems.item_email" title="メール" style="margin-right: 5px"/>
-      <p class="errormessage">{{ errorMessage }}</p>
+      <input v-model="userItems.item_email" style="margin-right: 5px"/>
+      <p class="ErrorMessage">{{ errorMessage }}</p>
 
       <button @click="adduser">ユーザー追加</button>
       <hr />
@@ -73,7 +67,7 @@
     </div>
 
 
-    <custom-button type="submit" :disabled="!meta.valid"
+    <custom-button type="submit" :disabled="!meta.valid || !Object.keys(userItems['user']).length">
       >送信する</custom-button
     >
     <p>{{ values }}</p>
@@ -273,13 +267,6 @@ export default defineComponent({
       // resetForm();
     });
 
-     // useForm({
-     //   validationSchema: schema2,
-     // });
-
-    //const { value: item_name, errorMessage: nameError } = useField('userItems.item_name');
-    //const { value: item_email, errorMessage: emailError } = useField('userItems.item_email');
-
     // vue2共通
    // 明細にデータを追加したい
     const details = reactive({
@@ -335,11 +322,11 @@ export default defineComponent({
         userItems.item_name = "";
         userItems.item_email = "";
       })
-      .catch(error =>{
+      .catch(error => {
         console.log('catch',error.errors);
+        console.log('catch1', !Object.keys(userItems['user']).length);
         errorMessage.value=error.errors[0];
       });
-
     };
 
     interface KeyValue {
@@ -407,7 +394,7 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.errormessage{
+.ErrorMessage{
   color: #FF0000;
 }
 .InputGroup {
