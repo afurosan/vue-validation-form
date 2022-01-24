@@ -3,12 +3,13 @@
     <p>子コンポーネント</p>
       <ol>
         <!-- keyにはindexをつける -->
-          <th v-for="(header, index) in userItems.header" :key="index">
+          <li v-for="(header, index) in userItems.header" :key="index">
             {{ header }}
-          </th>
+          </li>
           <li v-for="(user, index) in userItems.user" :key="index">
             {{ user.name }} {{ user.email }}
-            <button @click="removeItem(index)">削除</button>
+            <button :disabled="!(childCorrectFlg === 0)" @click="removeItem(index)">削除</button>
+            <button :disabled="!(childCorrectFlg === 0)" @click="correctItem(index)">修正</button>
           </li>
       </ol>
     <br />
@@ -27,15 +28,25 @@ export default {
     value: {
       type: Number,
     },
-
+    childCorrectFlg:{
+      type: Number,
+      default:0,
+    }
   },
 
-  setup(props:any) {
+
+  setup(props:any, context:any) {
     const fs = reactive(props.userItems);
     const removeItem = (i:number) => {fs.user.splice(i,  1)};
 
+    function correctItem(i: number){
+      context.emit('onDataSet',fs.user[i],i);
+      console.log(fs.user[i].name);
+    }
+
     return {
       removeItem,
+      correctItem,
     };
   },
 };

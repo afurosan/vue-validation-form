@@ -58,11 +58,15 @@
       <input v-model="userItems.item_email" style="margin-right: 5px"/>
       <p class="ErrorMessage">{{ errorMessage }}</p>
 
-      <button @click="adduser">ユーザー追加</button>
+      <button v-if="parentCorrectFlg===0" @click="adduser">ユーザー追加</button>
+      <button v-if="parentCorrectFlg===1" @click="correctuser">修正登録</button>
+      <button v-if="parentCorrectFlg===1" @click="canceluser">キャンセル</button>
+
       <hr />
 
       <FormDetails
-          :user-items="userItems"
+          :user-items="userItems" @onDataSet="dataSet"
+          :child-correct-flg="parentCorrectFlg"
       ></FormDetails>
     </div>
 
@@ -365,6 +369,42 @@ export default defineComponent({
       { id: "c", name: "野球" },
     ];
 
+    let midx=ref(-1);
+    let parentCorrectFlg=ref(0);
+    function dataSet(data: any, i: number){
+      // console.log(data);
+      // 修正用データセット
+      userItems.item_name=data.name;
+      userItems.item_email=data.email;
+      midx.value=i; // 明細idxセット
+      parentCorrectFlg.value=1;
+      console.log('idx:' + midx.value);
+      // console.log('flg:' + data.modifyFlg);
+    }
+    function correctuser(){
+      //連想配列の追加
+      errorMessage.value="";
+      schema2.validate(userItems).then( v => {
+        console.log('then',v);
+        let item = { name: userItems.item_name, email: userItems.item_email };
+        console.log('idx2:' + midx.value);
+        userItems.user.splice(midx.value,1, item);
+        userItems.item_name = "";
+        userItems.item_email = "";
+        parentCorrectFlg.value=0;
+      })
+          .catch(error => {
+            console.log('catch',error.errors);
+            console.log('catch1', !Object.keys(userItems['user']).length);
+            errorMessage.value=error.errors[0];
+          });
+    }
+    function canceluser(){
+      userItems.item_name="";
+      userItems.item_email="";
+      parentCorrectFlg.value=0;
+    }
+
     return {
       ccArray,
       prefecture,
@@ -387,6 +427,11 @@ export default defineComponent({
       adduser,
       schema2,
       errorMessage,
+      dataSet,
+      midx,
+      parentCorrectFlg,
+      correctuser,
+      canceluser,
     };
   },
 });
