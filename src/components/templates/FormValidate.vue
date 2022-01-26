@@ -58,9 +58,9 @@
       <input v-model="userItems.item_email" style="margin-right: 5px"/>
       <p class="ErrorMessage">{{ errorMessage }}</p>
 
-      <button v-if="parentCorrectFlg===0" @click="adduser">ユーザー追加</button>
-      <button v-if="parentCorrectFlg===1" @click="correctuser">修正登録</button>
-      <button v-if="parentCorrectFlg===1" @click="canceluser">キャンセル</button>
+      <button v-if="parentCorrectFlg===0" @click="adduser" type="button">ユーザー追加</button>
+      <button v-if="parentCorrectFlg===1" @click="correctuser" type="button">修正登録</button>
+      <button v-if="parentCorrectFlg===1" @click="canceluser" type="button">キャンセル</button>
 
       <hr />
 
@@ -68,6 +68,10 @@
           :user-items="userItems" @onDataSet="dataSet"
           :child-correct-flg="parentCorrectFlg"
       ></FormDetails>
+
+
+
+
     </div>
 
 
@@ -107,6 +111,19 @@
     </div>
   </div>
 
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>ユーザ名</th>
+      <th>E-mail</th>
+      <th>機能</th>
+    </tr>
+    </thead>
+    <tbody>
+    <form-details2  v-for="(user,index) in users" :user="user" :key="user.id" :index="index" @update="corUser"></form-details2>
+    </tbody>
+  </table>
 
 </template>
 
@@ -144,6 +161,7 @@ import CustomButton from "@/components/atoms/CustomButton.vue";
 
 import CustomMultiInput from "@/components/atoms/CustomMultiInput.vue"
 import FormDetails from "@/components/templates/FormDetails.vue";
+import FormDetails2 from "@/components/templates/FormDetails2.vue";
 export default defineComponent({
   name: "FormValidate",
   components: {
@@ -158,6 +176,7 @@ export default defineComponent({
     ErrorMessage,
     Field,
     FormDetails,
+    FormDetails2,
 
   },
   props: {},
@@ -378,7 +397,7 @@ export default defineComponent({
       userItems.item_email=data.email;
       midx.value=i; // 明細idxセット
       parentCorrectFlg.value=1;
-      console.log('idx:' + midx.value);
+      // console.log('idx:' + midx.value);
       // console.log('flg:' + data.modifyFlg);
     }
     function correctuser(){
@@ -403,6 +422,15 @@ export default defineComponent({
       userItems.item_name="";
       userItems.item_email="";
       parentCorrectFlg.value=0;
+    }
+    const users = reactive([
+      {id:1, name:"鈴木　一郎", email:"suzuki@abc.co.jp"},
+      {id:2, name:"佐藤　二郎", email:"satou@abc.co.jp"},
+    ]);
+    function corUser(data:any,i:number){
+      console.log(data);
+      // users[i].name="aaa";
+      // users[i].email="bbb";
     }
 
     return {
@@ -432,6 +460,8 @@ export default defineComponent({
       parentCorrectFlg,
       correctuser,
       canceluser,
+      users,
+      corUser,
     };
   },
 });
