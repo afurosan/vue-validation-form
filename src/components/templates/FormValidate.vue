@@ -429,8 +429,8 @@ export default defineComponent({
     ]);
     function corUser(data:any,i:number){
       console.log(data);
-      // users[i].name="aaa";
-      // users[i].email="bbb";
+      // users[i].name=data.name;
+      // users[i].email=data.email;
     }
 
     return {
