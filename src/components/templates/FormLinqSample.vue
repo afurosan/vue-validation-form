@@ -110,24 +110,36 @@ export default defineComponent({
     const orders =
         [{
           place: '秋葉原',
+          shop: 'スタバ',
           products: ['ホットコーヒー', 'ホットコーヒー', 'ホットコーヒー', 'ホットコーヒー'],
-          amounts: 920
+          amounts: 1
         }, {
           place: '秋葉原',
+          shop: 'コメダ',
           products: ['アイスコーヒー', 'アイスカフェモカ', 'アイスティー'],
-          amounts: 680
+          amounts: 2
         }, {
           place: '上越',
+          shop: 'コメダ',
           products: ['ホットコーヒー', 'アイスコーヒー', 'コーラ'],
-          amounts: 690
+          amounts: 2
         }, {
           place: '上越',
+          shop: 'コメダ',
           products: ['コーラ', 'マンゴーソーダ'],
-          amounts: 680
-        },{
+          amounts: 2
+        },
+        {
+          place: '上越',
+          shop: 'スタバ',
+          products: ['コーラ', 'マンゴーソーダ'],
+          amounts: 1
+        },
+        {
           place: '秋葉原',
+          shop: 'スタバ',
           products: ['ホットコーヒー', 'ホットティー', 'アイスティー'],
-          amounts: 790
+          amounts: 1
         }
         ];
 
@@ -140,19 +152,19 @@ export default defineComponent({
       //集計のパターン
       let res = asEnumerable(orders)
             .GroupBy(
-                x => x.place,
+                   x => x.place +','+ x.shop,
                 x => x,
                 ( key, items) => {
                   const g = asEnumerable(items);
                   return {
-                    place: key,
+                    key: key,
                     avg: g.Average(i => i.amounts),
                     min: g.Min(i => i.amounts),
                     max: g.Max(i => i.amounts),
                     sum: g.Sum(i => i.amounts),
                   }
                 }
-            ).ToArray();
+            ).OrderByDescending(x => x.sum).ToArray();
 
           console.log(res);
     }

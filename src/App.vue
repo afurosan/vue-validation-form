@@ -1,17 +1,5 @@
 <template>
-  <form-validate />
-  <!-- <form-test /> -->
 
-  <hr>
-  <form-local-image
-      top-msg="画像をプレビュー（ローカルドライブにあるファイル）"
-      alt-msg="画像は表示できません"
-  />
-  <form-local-image
-      top-msg="画像をプレビュー（ローカルドライブにあるファイル）"
-      alt-msg="画像は表示できません"
-  />
-  <hr>
   <form-linq-sample></form-linq-sample>
 
 </template>
@@ -26,9 +14,9 @@ import FormLinqSample from "@/components/templates/FormLinqSample.vue";
 export default defineComponent({
   name: "App",
   components: {
-    FormValidate,
+    //FormValidate,
     // FormTest,
-    FormLocalImage,
+    //FormLocalImage,
     FormLinqSample,
   },
 });
