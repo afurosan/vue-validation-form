@@ -7,7 +7,7 @@
       v-model="values.favorites"
        v-model="values.sex"
     > -->
-    <custom-input v-bind="ccArray.name.attributes" />
+    <custom-input v-bind="ccArray.name.attributes" @input="ccArray.name.value" />
     <custom-input v-bind="ccArray.mail.attributes" />
     <custom-input v-bind="ccArray.password.attributes" />
     <custom-input v-bind="ccArray.confirm_password.attributes" />
@@ -43,29 +43,15 @@
       <p><ErrorMessage :name="`users[${idx}].useremail`" /></p>
       <button type="button" @click="remove(idx)">x</button>
     </fieldset>
-    <button type="button" @click="push({ useremail: '', username: '' })">
-      Add User +</button
-    ><br /><br />
+<!--        <button type="button" @click="push({ useremail: '', username: '' })">Add User +</button><br /><br />-->
 
     <div>
-      <p>コンポーネント間のデータの受け渡し</p>
-      <span>名前</span>
-      <br>
-      <input v-model="userItems.item_name" style="margin-right: 5px"/>
-      <br>
-      <span>メール</span>
-      <br>
-      <input v-model="userItems.item_email" style="margin-right: 5px"/>
-      <p class="ErrorMessage">{{ errorMessage }}</p>
-
-      <button v-if="parentCorrectFlg===0" @click="adduser" type="button">ユーザー追加</button>
-      <button v-if="parentCorrectFlg===1" @click="correctuser" type="button">修正登録</button>
-      <button v-if="parentCorrectFlg===1" @click="canceluser" type="button">キャンセル</button>
+        <button @click="adduser" type="button">ユーザー追加</button>
 
       <hr />
 
       <FormDetails
-          :user-items="userItems" @onDataSet="dataSet"
+          :user-items="fields" :field-items="ccArray"
           :child-correct-flg="parentCorrectFlg"
       ></FormDetails>
 
@@ -75,55 +61,16 @@
     </div>
 
 
-    <custom-button type="submit" :disabled="!meta.valid || !Object.keys(userItems['user']).length">
-      >送信する</custom-button
-    >
-    <p>{{ values }}</p>
-    <p>{{ meta }}</p>
+<!--    <custom-button type="submit" :disabled="!meta.valid || !Object.keys(fields['user']).length">-->
+<!--      >送信する</custom-button-->
+<!--    >-->
+<!--    <p>{{ccArray}}</p>-->
+<!--    <p>{{ values }}</p>-->
+<!--    <p>{{ meta }}</p>-->
     <!-- </Form> -->
   </form>
 
-  <CustomMultiInput v-model:name="name" v-model:email="email" v-model:tel="tel"/>
-
-  <div>
-    <h4>明細追加テスト</h4>
-    <hr />
-    <div>
-      <p>明細にデータを追加します。</p>
-
-      <table border="2">
-        <thead>
-        <tr>
-          <th v-for="(header, index) in details.header" :key="index">
-            {{ header }}
-          </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="(item, index) in details.items" :key="index">
-          <td v-for="(value, index) in item" :key="index">{{ value }}</td>
-          <td><button @click="removeItem(index)">削除</button></td>
-        </tr>
-        </tbody>
-      </table>
-      <button @click="addItem" style="margin: 10px">明細追加</button>
-
-    </div>
-  </div>
-
-  <table>
-    <thead>
-    <tr>
-      <th>ID</th>
-      <th>ユーザ名</th>
-      <th>E-mail</th>
-      <th>機能</th>
-    </tr>
-    </thead>
-    <tbody>
-    <form-details2  v-for="(user,index) in users" :user="user" :key="user.id" :index="index" @update="corUser"></form-details2>
-    </tbody>
-  </table>
+<!--  <CustomMultiInput v-model:name="name" v-model:email="email" v-model:tel="tel"/>-->
 
 </template>
 
@@ -168,15 +115,15 @@ export default defineComponent({
     //CustomCheckBoxes,
     // Form,
     CustomInput,
-    CustomButton,
+    // CustomButton,
     CustomSelect,
     CustomRadio,
     CustomCheckBox,
-    CustomMultiInput,
-    ErrorMessage,
-    Field,
+    // CustomMultiInput,
+    // ErrorMessage,
+    // Field,
     FormDetails,
-    FormDetails2,
+    // FormDetails2,
 
   },
   props: {},
@@ -262,7 +209,7 @@ export default defineComponent({
       users: Yup.array().of(
         Yup.object({
           username: Yup.string().required().label("name"),
-          useremail: Yup.string().email().required().label("email"),
+          useremail: Yup.string().email().required().label("mail"),
         })
       ),
     });
@@ -273,84 +220,26 @@ export default defineComponent({
         item_email: Yup.string().email('メール形式が不正です。').required('メールは入力必須です。'),
      });
 
-    // //  初期値の設定
-    // const initialValues = {
-    //   users: [{ username: "", useremail: "" }],
-    // };
-
     const { values, meta, handleSubmit } = useForm({
       validationSchema: schema,
-      // initialValues: initialValues,
     });
 
-    const { fields, push, remove } = useFieldArray("users");
+    const { fields, push, remove, update } = useFieldArray("users");
 
     const onSubmitClick = handleSubmit((v, { resetForm }) => {
       console.log(v);
       // resetForm();
     });
 
-    // vue2共通
-   // 明細にデータを追加したい
-    const details = reactive({
-      header: ["ID", "商品名", "枝番名", "価格", ""],
-      items: [
-        { id: 1, name: "ダニエルウェリントン", branch_name: "34mm シルバー", price: 15000 },
-        { id: 2, name: "フォッシル", branch_name: "40mm ブラック", price: 10000 },
-        { id: 3, name: "スカーゲン", branch_name: "40mm ブラック", price: 18000 },
-      ],
-    });
-
-    // vue2共通
-    const addItem = () => {
-      details.items.push({
-        id: 4,
-        name: "ポールスミス",
-        branch_name: "42mm シルバー",
-        price: 23000,
-      });
-    };
-
-    // vue2形式
-    //const removeItem = (index) => {
-    //      details.items.splice(index, 1);
-
-    // {index:number}をつけないと、TS7031：暗黙anyエラー
-    const removeItem = (index: {index:number}) => {
-          details.items.splice(1, 1);};
-
-    const name = ref('鈴木　三郎')
-    const email = ref('suzuki3@abc.co.jp')
-    const tel = ref('090-3333-3333')
-
-    // コンポーネント化した明細入力関連
-    const userItems = reactive({
-      item_name: "",
-      item_email: "",
-      user: [
-        { name: "鈴木　一郎", email: "suzuki@abc.co.jp"},
-        { name: "佐藤　二郎", email: "satou@abc.co.jp"},
-      ],
-    });
-
     const errorMessage = ref("")
 
     const adduser = () => {
-      //連想配列の追加
-        errorMessage.value="";
-        schema2.validate(userItems).then( v => {
-        console.log('then',v);
-        let item = { name: userItems.item_name, email: userItems.item_email };
-        userItems.user.push(item);
-        userItems.item_name = "";
-        userItems.item_email = "";
-      })
-      .catch(error => {
-        console.log('catch',error.errors);
-        console.log('catch1', !Object.keys(userItems['user']).length);
-        errorMessage.value=error.errors[0];
-      });
-    };
+      // console.log(values);
+      const additem={name:"aaa",mail:"bbb",password:"aaa",confirm_password:"aaa",prefecture:"1",
+        sex:"2", favorites:"['a']"};
+      push(additem);
+    }
+
 
     interface KeyValue {
       id: string;
@@ -390,48 +279,6 @@ export default defineComponent({
 
     let midx=ref(-1);
     let parentCorrectFlg=ref(0);
-    function dataSet(data: any, i: number){
-      // console.log(data);
-      // 修正用データセット
-      userItems.item_name=data.name;
-      userItems.item_email=data.email;
-      midx.value=i; // 明細idxセット
-      parentCorrectFlg.value=1;
-      // console.log('idx:' + midx.value);
-      // console.log('flg:' + data.modifyFlg);
-    }
-    function correctuser(){
-      //連想配列の追加
-      errorMessage.value="";
-      schema2.validate(userItems).then( v => {
-        console.log('then',v);
-        let item = { name: userItems.item_name, email: userItems.item_email };
-        console.log('idx2:' + midx.value);
-        userItems.user.splice(midx.value,1, item);
-        userItems.item_name = "";
-        userItems.item_email = "";
-        parentCorrectFlg.value=0;
-      })
-          .catch(error => {
-            console.log('catch',error.errors);
-            console.log('catch1', !Object.keys(userItems['user']).length);
-            errorMessage.value=error.errors[0];
-          });
-    }
-    function canceluser(){
-      userItems.item_name="";
-      userItems.item_email="";
-      parentCorrectFlg.value=0;
-    }
-    const users = reactive([
-      {id:1, name:"鈴木　一郎", email:"suzuki@abc.co.jp"},
-      {id:2, name:"佐藤　二郎", email:"satou@abc.co.jp"},
-    ]);
-    function corUser(data:any,i:number){
-      console.log(data);
-      // users[i].name=data.name;
-      // users[i].email=data.email;
-    }
 
     return {
       ccArray,
@@ -445,23 +292,16 @@ export default defineComponent({
       fields,
       push,
       remove,
-      details,
-      addItem,
-      removeItem,
-      name,
-      email,
-      tel,
-      userItems,
       adduser,
       schema2,
       errorMessage,
-      dataSet,
+      // dataSet,
       midx,
       parentCorrectFlg,
-      correctuser,
-      canceluser,
-      users,
-      corUser,
+      // correctuser,
+      // canceluser,
+      // // users,
+      // corUser,
     };
   },
 });

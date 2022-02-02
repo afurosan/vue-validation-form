@@ -2,15 +2,15 @@
   <form-validate />
   <!-- <form-test /> -->
 
-  <hr>
-  <form-local-image
-      top-msg="画像をプレビュー（ローカルドライブにあるファイル）"
-      alt-msg="画像は表示できません"
-  />
-  <form-local-image
-      top-msg="画像をプレビュー（ローカルドライブにあるファイル）"
-      alt-msg="画像は表示できません"
-  />
+<!--  <hr>-->
+<!--  <form-local-image-->
+<!--      top-msg="画像をプレビュー（ローカルドライブにあるファイル）"-->
+<!--      alt-msg="画像は表示できません"-->
+<!--  />-->
+<!--  <form-local-image-->
+<!--      top-msg="画像をプレビュー（ローカルドライブにあるファイル）"-->
+<!--      alt-msg="画像は表示できません"-->
+<!--  />-->
 
 </template>
 
@@ -25,7 +25,7 @@ export default defineComponent({
   components: {
     FormValidate,
     // FormTest,
-    FormLocalImage,
+    // FormLocalImage,
   },
 });
 </script>
