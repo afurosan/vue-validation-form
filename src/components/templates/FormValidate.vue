@@ -7,7 +7,7 @@
       v-model="values.favorites"
        v-model="values.sex"
     > -->
-    <custom-input v-bind="ccArray.name.attributes" @input="ccArray.name.value" />
+    <custom-input v-bind="ccArray.name.attributes" />
     <custom-input v-bind="ccArray.mail.attributes" />
     <custom-input v-bind="ccArray.password.attributes" />
     <custom-input v-bind="ccArray.confirm_password.attributes" />
@@ -25,52 +25,52 @@
         v-model="values.favorites"
     />
 
-    <fieldset
-      class="InputGroup"
-      v-for="(field, idx) in fields"
-      :key="field.key"
-    >
-      <legend>User #{{ idx }}</legend>
-      <label :for="`name_${idx}`">Name</label>
-      <Field :id="`name_${idx}`" :name="`users[${idx}].username`" />
-      <p><ErrorMessage :name="`users[${idx}].username`" /></p>
-      <label :for="`email_${idx}`">Email</label>
-      <Field
-        :id="`email_${idx}`"
-        :name="`users[${idx}].useremail`"
-        type="email"
-      />
-      <p><ErrorMessage :name="`users[${idx}].useremail`" /></p>
-      <button type="button" @click="remove(idx)">x</button>
-    </fieldset>
-<!--        <button type="button" @click="push({ useremail: '', username: '' })">Add User +</button><br /><br />-->
-
-    <div>
-        <button @click="adduser" type="button">ユーザー追加</button>
-
-      <hr />
-
-      <FormDetails
-          :user-items="fields" :field-items="ccArray"
-          :child-correct-flg="parentCorrectFlg"
-      ></FormDetails>
-
-
-
-
-    </div>
-
-
-<!--    <custom-button type="submit" :disabled="!meta.valid || !Object.keys(fields['user']).length">-->
-<!--      >送信する</custom-button-->
+<!--    <fieldset-->
+<!--      class="InputGroup"-->
+<!--      v-for="(field, idx) in fields"-->
+<!--      :key="field.key"-->
 <!--    >-->
-<!--    <p>{{ccArray}}</p>-->
-<!--    <p>{{ values }}</p>-->
-<!--    <p>{{ meta }}</p>-->
-    <!-- </Form> -->
-  </form>
+<!--      <legend>User #{{ idx }}</legend>-->
+<!--      <label :for="`name_${idx}`">Name</label>-->
+<!--      <Field :id="`name_${idx}`" :name="`users[${idx}].username`" />-->
+<!--      <p><ErrorMessage :name="`users[${idx}].username`" /></p>-->
+<!--      <label :for="`email_${idx}`">Email</label>-->
+<!--      <Field-->
+<!--        :id="`email_${idx}`"-->
+<!--        :name="`users[${idx}].useremail`"-->
+<!--        type="email"-->
+<!--      />-->
+<!--      <p><ErrorMessage :name="`users[${idx}].useremail`" /></p>-->
+<!--      <button type="button" @click="remove(idx)">x</button>-->
+<!--    </fieldset>-->
+<!--    <button type="button" @click="push({ useremail: '', username: '' })">-->
+<!--      Add User +</button-->
+<!--    ><br /><br />-->
 
-<!--  <CustomMultiInput v-model:name="name" v-model:email="email" v-model:tel="tel"/>-->
+  <button @click="openModal">商品追加</button>
+  <popup-item v-show="showContent" @from-child="closeModal" @addDetail="addItem">
+    商品追加
+  </popup-item>
+
+  <table border="1">
+    <thead>
+    <tr>
+      <td>No</td>
+      <td>なまえ</td>
+      <td>数量</td>
+      <td>機能</td>
+    </tr>
+    </thead>
+    <tbody>
+    <form-details  v-for="(item,index) in items" :item="item" :key="item.id" :index="index" @update="correctItem"></form-details>
+    </tbody>
+  </table>
+  <custom-button type="submit" :disabled="!meta.valid">
+    >送信する</custom-button
+  >
+        <p>{{ values }}</p>
+        <p>{{ meta }}</p>
+  </form>
 
 </template>
 
@@ -109,13 +109,15 @@ import CustomButton from "@/components/atoms/CustomButton.vue";
 import CustomMultiInput from "@/components/atoms/CustomMultiInput.vue"
 import FormDetails from "@/components/templates/FormDetails.vue";
 import FormDetails2 from "@/components/templates/FormDetails2.vue";
+import PopupItem from "@/components/templates/PopupItem.vue";
 export default defineComponent({
   name: "FormValidate",
   components: {
+    PopupItem,
     //CustomCheckBoxes,
     // Form,
     CustomInput,
-    // CustomButton,
+    CustomButton,
     CustomSelect,
     CustomRadio,
     CustomCheckBox,
@@ -209,7 +211,7 @@ export default defineComponent({
       users: Yup.array().of(
         Yup.object({
           username: Yup.string().required().label("name"),
-          useremail: Yup.string().email().required().label("mail"),
+          useremail: Yup.string().email().required().label("email"),
         })
       ),
     });
@@ -220,26 +222,84 @@ export default defineComponent({
         item_email: Yup.string().email('メール形式が不正です。').required('メールは入力必須です。'),
      });
 
+    // //  初期値の設定
+    // const initialValues = {
+    //   users: [{ username: "", useremail: "" }],
+    // };
+
     const { values, meta, handleSubmit } = useForm({
       validationSchema: schema,
+      // initialValues: initialValues,
     });
 
-    const { fields, push, remove, update } = useFieldArray("users");
+    const { fields, push, remove } = useFieldArray("users");
 
     const onSubmitClick = handleSubmit((v, { resetForm }) => {
       console.log(v);
       // resetForm();
     });
 
+   //  // vue2共通
+   // // 明細にデータを追加したい
+   //  const details = reactive({
+   //    header: ["ID", "商品名", "枝番名", "価格", ""],
+   //    items: [
+   //      { id: 1, name: "ダニエルウェリントン", branch_name: "34mm シルバー", price: 15000 },
+   //      { id: 2, name: "フォッシル", branch_name: "40mm ブラック", price: 10000 },
+   //      { id: 3, name: "スカーゲン", branch_name: "40mm ブラック", price: 18000 },
+   //    ],
+   //  });
+   //
+   //  // vue2共通
+   //  const addItem = () => {
+   //    details.items.push({
+   //      id: 4,
+   //      name: "ポールスミス",
+   //      branch_name: "42mm シルバー",
+   //      price: 23000,
+   //    });
+   //  };
+
+    // vue2形式
+    //const removeItem = (index) => {
+    //      details.items.splice(index, 1);
+
+    // {index:number}をつけないと、TS7031：暗黙anyエラー
+    // const removeItem = (index: {index:number}) => {
+    //       details.items.splice(1, 1);};
+    //
+    // const name = ref('鈴木三郎')
+    // const email = ref('suzuki3@abc.co.jp')
+    // const tel = ref('090-3333-3333')
+
+    // // コンポーネント化した明細入力関連
+    // const userItems = reactive({
+    //   item_name: "",
+    //   item_email: "",
+    //   user: [
+    //     { name: "鈴木一郎", email: "suzuki@abc.co.jp"},
+    //     { name: "佐藤二郎", email: "satou@abc.co.jp"},
+    //   ],
+    // });
+
     const errorMessage = ref("")
 
-    const adduser = () => {
-      // console.log(values);
-      const additem={name:"aaa",mail:"bbb",password:"aaa",confirm_password:"aaa",prefecture:"1",
-        sex:"2", favorites:"['a']"};
-      push(additem);
-    }
-
+    // const adduser = () => {
+    //   //連想配列の追加
+    //     errorMessage.value="";
+    //     schema2.validate(userItems).then( v => {
+    //     console.log('then',v);
+    //     let item = { name: userItems.item_name, email: userItems.item_email };
+    //     userItems.user.push(item);
+    //     userItems.item_name = "";
+    //     userItems.item_email = "";
+    //   })
+    //   .catch(error => {
+    //     console.log('catch',error.errors);
+    //     console.log('catch1', !Object.keys(userItems['user']).length);
+    //     errorMessage.value=error.errors[0];
+    //   });
+    // };
 
     interface KeyValue {
       id: string;
@@ -279,6 +339,78 @@ export default defineComponent({
 
     let midx=ref(-1);
     let parentCorrectFlg=ref(0);
+    // function dataSet(data: any, i: number){
+    //   // console.log(data);
+    //   // 修正用データセット
+    //   userItems.item_name=data.name;
+    //   userItems.item_email=data.email;
+    //   midx.value=i; // 明細idxセット
+    //   parentCorrectFlg.value=1;
+    //   // console.log('idx:' + midx.value);
+    //   // console.log('flg:' + data.modifyFlg);
+    // }
+    // function correctuser(){
+    //   //連想配列の追加
+    //   errorMessage.value="";
+    //   schema2.validate(userItems).then( v => {
+    //     console.log('then',v);
+    //     let item = { name: userItems.item_name, email: userItems.item_email };
+    //     console.log('idx2:' + midx.value);
+    //     userItems.user.splice(midx.value,1, item);
+    //     userItems.item_name = "";
+    //     userItems.item_email = "";
+    //     parentCorrectFlg.value=0;
+    //   })
+    //       .catch(error => {
+    //         console.log('catch',error.errors);
+    //         console.log('catch1', !Object.keys(userItems['user']).length);
+    //         errorMessage.value=error.errors[0];
+    //       });
+    // }
+    // function canceluser(){
+    //   userItems.item_name="";
+    //   userItems.item_email="";
+    //   parentCorrectFlg.value=0;
+    // }
+    // const users = reactive([
+    //   {id:1, name:"鈴木一郎", email:"suzuki@abc.co.jp"},
+    //   {id:2, name:"佐藤二郎", email:"satou@abc.co.jp"},
+    // ]);
+    // function corUser(data:any,i:number){
+    //   console.log(data);
+    //   // users[i].name=data.name;
+    //   // users[i].email=data.email;
+    // }
+
+    const showContent=ref(false);
+    const items=ref([{
+      id :{
+        type:Number,
+        default:0,
+      },
+      name:{
+        type:String,
+        default:'',
+      },
+      quantity:{
+        type:Number,
+        default:1,
+      },
+    }]);
+
+    const openModal = () => showContent.value = true;
+    const closeModal = () => showContent.value = false;
+    const addItem = (value:any) =>{
+      console.log('addItem');
+      // console.log(value);
+      items.value.push(value);
+    };
+    const correctItem = (data:any, i:number) =>{
+      console.log('corItem');
+      console.log(data);
+      items.value[i].quantity=data.quantity;
+      console.log(items.value);
+    };
 
     return {
       ccArray,
@@ -292,7 +424,14 @@ export default defineComponent({
       fields,
       push,
       remove,
-      adduser,
+      // details,
+      // addItem,
+      // removeItem,
+      // name,
+      // email,
+      // tel,
+      // userItems,
+      // adduser,
       schema2,
       errorMessage,
       // dataSet,
@@ -300,8 +439,14 @@ export default defineComponent({
       parentCorrectFlg,
       // correctuser,
       // canceluser,
-      // // users,
+      // users,
       // corUser,
+      showContent,
+      openModal,
+      closeModal,
+      addItem,
+      correctItem,
+      items,
     };
   },
 });

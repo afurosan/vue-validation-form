@@ -1,79 +1,44 @@
 <template>
-  <table border="2">
-    <thead>
-    <tr>
-      <th v-for="(header, index) in Object.keys(fieldItems)" :key="index">
-        {{ fieldItems[header].label }}
-      </th>
-    </tr>
-    </thead>
-    <tbody>
-<!--    <tr v-for="(item, index) in userItems" :key="index">-->
-<!--      <td v-for="(value, index) in item" :key="index">{{ value }}</td>-->
-<!--      <td><button @click="removeItem(index)">削除</button></td>-->
-<!--    </tr>-->
-    </tbody>
-  </table>
-
-
-<!--  <div>-->
-<!--    <p>明細</p>-->
-<!--      <ol>-->
-<!--        &lt;!&ndash; keyにはindexをつける &ndash;&gt;-->
-<!--          <li v-for="(header, index) in Object.keys(fieldItems)" :key="index">-->
-<!--            {{ fieldItems[header].label }}-->
-<!--          </li>-->
-<!--&lt;!&ndash;          <li v-for="(user, index) in userItems" :key="index">&ndash;&gt;-->
-<!--&lt;!&ndash;            {{ user.name }} {{ user.mail }}&ndash;&gt;-->
-<!--&lt;!&ndash;            <button :disabled="!(childCorrectFlg === 0)" @click="removeItem(index)">削除</button>&ndash;&gt;-->
-<!--&lt;!&ndash;            <button :disabled="!(childCorrectFlg === 0)" @click="correctItem(index)">修正</button>&ndash;&gt;-->
-<!--&lt;!&ndash;          </li>&ndash;&gt;-->
-<!--      </ol>-->
-<!--    <br />-->
-<!--  </div>-->
+  <tr v-show="index!=0">
+    <td>{{ index }}</td>
+    <td>{{ item.name }}</td>
+    <td v-if="!isEdit">{{ item.quantity }}</td>
+    <td v-else><input type="number" :value="fs.quantity" @input="fs.quantity=$event.target.value"></td>
+    <td v-if="!isEdit"><button :disabled="isEdit" type="button" @click="isEdit=true">修正モード</button></td>
+    <td v-else><button :disabled="!isEdit" type="button" @click="correctNum($event, index)">修正登録</button>
+    <button type="button" @click="isEdit=false">キャンセル</button></td>
+  </tr>
 </template>
 
 <script lang="ts">
-import { computed } from "vue";
-import { reactive } from 'vue'
+import { ref, reactive } from 'vue'
 export default {
   name: "FormDetails",
-  props: {
-    userItems: {
-      type: Object,
-    },
-    fieldItems: {
-      type: Object,
-    },
-    value: {
-      type: Number,
-    },
-    childCorrectFlg:{
-      type: Number,
-      default:0,
-    }
-  },
+  props:['item','key','index'],
 
 
   setup(props:any, context:any) {
-    const fs = reactive(props.userItems);
-    const ca = reactive(props.fieldItems);
-    const removeItem = (i:number) => {fs.user.splice(i,  1)};
+    const fs = reactive(props.item);
+    // const removeItem = (i:number) => {fs.user.splice(i,  1)};
+    //
+    // function correctItem(i: number){
+    //   context.emit('onDataSet',fs.user[i],i);
+    //   console.log(fs.user[i].name);
+    // }
+    const isEdit = ref(false);
 
-    // console.log(ca.name.label);
-    // console.log(ca[Object.keys(ca)[0]].label);
-    // console.log(fs);
+    const correctNum = (event:any,i:number) => {
+      console.log(isEdit.value);
+      console.log(fs.quantity);
 
-    function correctItem(i: number){
-      // console.log(context.target.name);
-      // console.log(fs.user[i].name);
-      context.emit('onDataSet',fs.user[i],i);
-
-    }
+      context.emit('update', fs, i);
+      isEdit.value = false;
+    };
 
     return {
-      removeItem,
-      correctItem,
+      isEdit,
+      correctNum,
+      fs,
     };
   },
 };
