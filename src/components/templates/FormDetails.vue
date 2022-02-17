@@ -1,44 +1,68 @@
 <template>
-  <tr v-show="index!=0">
-    <td>{{ index }}</td>
-    <td>{{ item.name }}</td>
-    <td v-if="!isEdit">{{ item.quantity }}</td>
-    <td v-else><input type="number" :value="fs.quantity" @input="fs.quantity=$event.target.value"></td>
-    <td v-if="!isEdit"><button :disabled="isEdit" type="button" @click="isEdit=true">修正モード</button></td>
-    <td v-else><button :disabled="!isEdit" type="button" @click="correctNum($event, index)">修正登録</button>
-    <button type="button" @click="isEdit=false">キャンセル</button></td>
+  <tr>
+    <td>{{ index+1 }}</td>
+    <td>{{ item.value.name }}</td>
+    <td v-if="!item.value.isedit">{{ item.value.quantity }}</td>
+    <td v-else><input v-model="quantity" type="number" /></td>
+    <td v-if="!item.value.isedit">
+      <button type="button" @click="childremove(index)">削除</button>
+      <button :disabled="item.value.isedit" type="button" @click="childedit(item.value,1, index)">修正モード</button>
+    </td>
+    <td v-else>
+      <button :disabled="!meta.valid" type="button" @click="childupdate(item.value, quantity, index)">修正</button>
+      <button type="button" @click="childedit(item.value,0, index)">キャンセル</button>
+    </td>
   </tr>
 </template>
 
 <script lang="ts">
-import { ref, reactive } from 'vue'
+import {Field, useField, useForm} from "vee-validate";
+import * as Yup from 'yup';
+
 export default {
   name: "FormDetails",
   props:['item','key','index'],
 
 
   setup(props:any, context:any) {
-    const fs = reactive(props.item);
-    // const removeItem = (i:number) => {fs.user.splice(i,  1)};
-    //
-    // function correctItem(i: number){
-    //   context.emit('onDataSet',fs.user[i],i);
-    //   console.log(fs.user[i].name);
-    // }
-    const isEdit = ref(false);
+    // バリデーションルール
+    const schema = Yup.object({
+      quantity:Yup.number().required().min(3),  // とりあえず3以上
+    });
+    // 初期値
+    const formValues = {
+      quantity:props.item.value.quantity,
+    };
+    const { errors, meta } = useForm({
+      validationSchema:schema,
+      initialValues:formValues,
+    })
 
-    const correctNum = (event:any,i:number) => {
-      console.log(isEdit.value);
-      console.log(fs.quantity);
+    const { value:quantity } = useField('quantity' );
 
-      context.emit('update', fs, i);
-      isEdit.value = false;
+    // 削除
+    const childremove = (index: number) =>{
+      context.emit('cremove', index);
+    };
+    // 修正
+    const childupdate = (data: any, quantity: number, idx:number) =>{
+      console.log("childupdate");
+      context.emit('cupdate', data, quantity, idx);
+    };
+    // モードチェンジ
+    const childedit = (data:any, flg:number, idx:number) => {
+      // キャンセルのときは、修正前の値に戻す。他にやり方ありそう・・・
+      if (flg===0){ quantity.value = data.quantity }
+      context.emit('cedit', data, flg, idx)
     };
 
     return {
-      isEdit,
-      correctNum,
-      fs,
+      errors,
+      meta,
+      quantity,
+      childedit,
+      childremove,
+      childupdate,
     };
   },
 };

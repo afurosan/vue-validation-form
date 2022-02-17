@@ -25,28 +25,6 @@
         v-model="values.favorites"
     />
 
-<!--    <fieldset-->
-<!--      class="InputGroup"-->
-<!--      v-for="(field, idx) in fields"-->
-<!--      :key="field.key"-->
-<!--    >-->
-<!--      <legend>User #{{ idx }}</legend>-->
-<!--      <label :for="`name_${idx}`">Name</label>-->
-<!--      <Field :id="`name_${idx}`" :name="`users[${idx}].username`" />-->
-<!--      <p><ErrorMessage :name="`users[${idx}].username`" /></p>-->
-<!--      <label :for="`email_${idx}`">Email</label>-->
-<!--      <Field-->
-<!--        :id="`email_${idx}`"-->
-<!--        :name="`users[${idx}].useremail`"-->
-<!--        type="email"-->
-<!--      />-->
-<!--      <p><ErrorMessage :name="`users[${idx}].useremail`" /></p>-->
-<!--      <button type="button" @click="remove(idx)">x</button>-->
-<!--    </fieldset>-->
-<!--    <button type="button" @click="push({ useremail: '', username: '' })">-->
-<!--      Add User +</button-->
-<!--    ><br /><br />-->
-
   <button @click="openModal">商品追加</button>
   <popup-item v-show="showContent" @from-child="closeModal" @addDetail="addItem">
     商品追加
@@ -62,12 +40,15 @@
     </tr>
     </thead>
     <tbody>
-    <form-details  v-for="(item,index) in items" :item="item" :key="item.id" :index="index" @update="correctItem"></form-details>
+    <form-details  v-for="(item,idx) in items" :item="item" :key="item.key" :index="idx"
+                 @cupdate="updateData" @cremove="removeData" @cedit="editMode">
+    </form-details>
     </tbody>
   </table>
   <custom-button type="submit" :disabled="!meta.valid">
     >送信する</custom-button
   >
+        <p>{{ errors }}</p>
         <p>{{ values }}</p>
         <p>{{ meta }}</p>
   </form>
@@ -108,7 +89,6 @@ import CustomButton from "@/components/atoms/CustomButton.vue";
 
 import CustomMultiInput from "@/components/atoms/CustomMultiInput.vue"
 import FormDetails from "@/components/templates/FormDetails.vue";
-import FormDetails2 from "@/components/templates/FormDetails2.vue";
 import PopupItem from "@/components/templates/PopupItem.vue";
 export default defineComponent({
   name: "FormValidate",
@@ -125,7 +105,6 @@ export default defineComponent({
     // ErrorMessage,
     // Field,
     FormDetails,
-    // FormDetails2,
 
   },
   props: {},
@@ -208,35 +187,28 @@ export default defineComponent({
       prefecture: Yup.string().required(),
       sex: Yup.string().required(),
       favorites: Yup.array().required(),
-      users: Yup.array().of(
-        Yup.object({
-          username: Yup.string().required().label("name"),
-          useremail: Yup.string().email().required().label("email"),
-        })
-      ),
+      items: Yup
+          .array()
+          .required()
+          .min(1)
+          .of(
+              Yup.object({
+                name: Yup.string().required().label("名前"),
+                quantity: Yup.number().required().min(3).label("数量"),
+              })
+          ),
     });
 
-    // コンポーネント化した明細入力関連
-     const schema2 = Yup.object({
-        item_name: Yup.string().required('名前は入力必須です。'),
-        item_email: Yup.string().email('メール形式が不正です。').required('メールは入力必須です。'),
-     });
-
-    // //  初期値の設定
-    // const initialValues = {
-    //   users: [{ username: "", useremail: "" }],
-    // };
-
-    const { values, meta, handleSubmit } = useForm({
+    const { errors, values, meta, handleSubmit } = useForm({
       validationSchema: schema,
       // initialValues: initialValues,
     });
 
-    const { fields, push, remove } = useFieldArray("users");
+    const { fields: items, push, remove, update } = useFieldArray("items");
 
     const onSubmitClick = handleSubmit((v, { resetForm }) => {
       console.log(v);
-      // resetForm();
+      resetForm();
     });
 
    //  // vue2共通
@@ -272,15 +244,6 @@ export default defineComponent({
     // const email = ref('suzuki3@abc.co.jp')
     // const tel = ref('090-3333-3333')
 
-    // // コンポーネント化した明細入力関連
-    // const userItems = reactive({
-    //   item_name: "",
-    //   item_email: "",
-    //   user: [
-    //     { name: "鈴木一郎", email: "suzuki@abc.co.jp"},
-    //     { name: "佐藤二郎", email: "satou@abc.co.jp"},
-    //   ],
-    // });
 
     const errorMessage = ref("")
 
@@ -337,82 +300,35 @@ export default defineComponent({
       { id: "c", name: "野球" },
     ];
 
-    let midx=ref(-1);
-    let parentCorrectFlg=ref(0);
-    // function dataSet(data: any, i: number){
-    //   // console.log(data);
-    //   // 修正用データセット
-    //   userItems.item_name=data.name;
-    //   userItems.item_email=data.email;
-    //   midx.value=i; // 明細idxセット
-    //   parentCorrectFlg.value=1;
-    //   // console.log('idx:' + midx.value);
-    //   // console.log('flg:' + data.modifyFlg);
-    // }
-    // function correctuser(){
-    //   //連想配列の追加
-    //   errorMessage.value="";
-    //   schema2.validate(userItems).then( v => {
-    //     console.log('then',v);
-    //     let item = { name: userItems.item_name, email: userItems.item_email };
-    //     console.log('idx2:' + midx.value);
-    //     userItems.user.splice(midx.value,1, item);
-    //     userItems.item_name = "";
-    //     userItems.item_email = "";
-    //     parentCorrectFlg.value=0;
-    //   })
-    //       .catch(error => {
-    //         console.log('catch',error.errors);
-    //         console.log('catch1', !Object.keys(userItems['user']).length);
-    //         errorMessage.value=error.errors[0];
-    //       });
-    // }
-    // function canceluser(){
-    //   userItems.item_name="";
-    //   userItems.item_email="";
-    //   parentCorrectFlg.value=0;
-    // }
-    // const users = reactive([
-    //   {id:1, name:"鈴木一郎", email:"suzuki@abc.co.jp"},
-    //   {id:2, name:"佐藤二郎", email:"satou@abc.co.jp"},
-    // ]);
-    // function corUser(data:any,i:number){
-    //   console.log(data);
-    //   // users[i].name=data.name;
-    //   // users[i].email=data.email;
-    // }
-
     const showContent=ref(false);
-    const items=ref([{
-      id :{
-        type:Number,
-        default:0,
-      },
-      name:{
-        type:String,
-        default:'',
-      },
-      quantity:{
-        type:Number,
-        default:1,
-      },
-    }]);
+
+    const updateData = (item: any, quantity: number, idx: number) => {
+      console.log("updateData");
+      console.log(values);
+      // let upd={name:values.name, email:values.email};
+      let upitem={id:item.id, name:item.name, quantity:quantity, isedit:false};
+      update(idx, upitem);
+      console.log("updateData success");
+    };
+
+    const removeData = (idx: number) =>{
+      remove(idx);
+    };
+
+    const editMode = (item: any, flg: number, idx: number) => {
+      let upitem={id:item.id, name:item.name, quantity:item.quantity,
+        isedit:(flg===0 ? false: true)};
+      update(idx, upitem);
+    };
 
     const openModal = () => showContent.value = true;
     const closeModal = () => showContent.value = false;
     const addItem = (value:any) =>{
-      console.log('addItem');
-      // console.log(value);
-      items.value.push(value);
-    };
-    const correctItem = (data:any, i:number) =>{
-      console.log('corItem');
-      console.log(data);
-      items.value[i].quantity=data.quantity;
-      console.log(items.value);
+      push(value);
     };
 
     return {
+      errors,
       ccArray,
       prefecture,
       sex,
@@ -421,32 +337,17 @@ export default defineComponent({
       schema,
       values,
       meta,
-      fields,
+      items,
       push,
       remove,
-      // details,
-      // addItem,
-      // removeItem,
-      // name,
-      // email,
-      // tel,
-      // userItems,
-      // adduser,
-      schema2,
+      updateData,
+      editMode,
+      removeData,
       errorMessage,
-      // dataSet,
-      midx,
-      parentCorrectFlg,
-      // correctuser,
-      // canceluser,
-      // users,
-      // corUser,
       showContent,
       openModal,
       closeModal,
       addItem,
-      correctItem,
-      items,
     };
   },
 });
